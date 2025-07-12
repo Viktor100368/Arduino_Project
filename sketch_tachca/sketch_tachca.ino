@@ -78,20 +78,20 @@ void timerInterupt(){
 void setSpeedAndDirection(int valSpeed, int valDirection, int *p_lV, int *p_rV,int *p_midle){
   MsTimer2::stop();
   if((valDirection > 1300)&&(valDirection < 1480)){
-    *p_lV = valSpeed-200;//коэффициент пересчета
+    *p_lV = valSpeed-150;//коэффициент пересчета
     *p_rV = valSpeed;
   }else if((valDirection > 1100)&&(valDirection < 1300)){
-    *p_lV = valSpeed-400;//коэффициент пересчета
+    *p_lV = valSpeed-300;//коэффициент пересчета
     *p_rV = valSpeed;
   }else if(valDirection < 1100){
     *p_lV = 600;
     *p_rV = valSpeed;
   }else if((valDirection > 1520)&&(valDirection < 1700)){
     *p_lV = valSpeed;
-    *p_rV = valSpeed-200;//коэффициент пересчета
+    *p_rV = valSpeed-150;//коэффициент пересчета
   }else if((valDirection > 1700)&&(valDirection < 1900)){
     *p_lV = valSpeed;
-    *p_rV = valSpeed-400;//коэффициент пересчета    
+    *p_rV = valSpeed-300;//коэффициент пересчета    
   }else if(valDirection > 1900){
     *p_lV = valSpeed;
     *p_rV = 600;
@@ -105,5 +105,6 @@ void setSpeedAndDirection(int valSpeed, int valDirection, int *p_lV, int *p_rV,i
   Serial.print("right value = ");
   Serial.println(*p_rV);
   Serial.println("****************************");
+  countTimer=0;
   MsTimer2::start();
 }
