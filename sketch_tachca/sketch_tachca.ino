@@ -42,12 +42,10 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   if(countTimer >= 2){
-    setDirection(duration[3], p_leftVal, p_rightVal, p_midle);
+    setSpeedAndDirection(duration[2], duration[3], p_leftVal, p_rightVal, p_midle);
   }
-  int l_val = map(leftVal,0,midle,0,255);
-  int r_val = map(rightVal,0,midle,0,255);
-  leftPwm = map(l_val,0,255,0,100);
-  rightPwm = map(r_val,0,255,0,100);
+  leftPwm = map(leftVal,1000,2000,0,100);
+  rightPwm = map(rightVal,1000,2000,0,100);
   leftPwm = constrain(leftPwm,0,95);
   rightPwm = constrain(rightPwm,0,95);
   Serial.println("==========================");
@@ -77,25 +75,35 @@ void timerInterupt(){
   countTimer++;
   MsTimer2::start();
 }
-void setDirection(int val, int *p_lV, int *p_rV,int *p_midle){
+void setSpeedAndDirection(int valSpeed, int valDirection, int *p_lV, int *p_rV,int *p_midle){
   MsTimer2::stop();
-  if((val > 1200)&&(val < 1480)){
-    *p_lV = val/2;
-    *p_rV = midle;
-  }else if(val < 1200){
-    *p_lV = 0;
-    *p_rV = midle;
-  }else if((val > 1520)&&(val < 1800)){
-    *p_lV = midle;
-    int tempR = val - midle;
-    tempR = midle - tempR;
-    *p_rV = tempR/2;
-  }else if(val > 1800){
-    *p_lV = midle;
-    *p_rV = 0;
+  if((valDirection > 1300)&&(valDirection < 1480)){
+    *p_lV = valSpeed-200;//коэффициент пересчета
+    *p_rV = valSpeed;
+  }else if((valDirection > 1100)&&(valDirection < 1300)){
+    *p_lV = valSpeed-400;//коэффициент пересчета
+    *p_rV = valSpeed;
+  }else if(valDirection < 1100){
+    *p_lV = 600;
+    *p_rV = valSpeed;
+  }else if((valDirection > 1520)&&(valDirection < 1700)){
+    *p_lV = valSpeed;
+    *p_rV = valSpeed-200;//коэффициент пересчета
+  }else if((valDirection > 1700)&&(valDirection < 1900)){
+    *p_lV = valSpeed;
+    *p_rV = valSpeed-400;//коэффициент пересчета    
+  }else if(valDirection > 1900){
+    *p_lV = valSpeed;
+    *p_rV = 600;
   }else{
-    *p_lV = midle;
-    *p_rV = midle;
+    *p_lV = valSpeed;
+    *p_rV = valSpeed;
   }
+  Serial.println("******************************");
+  Serial.print("left value = ");
+  Serial.println(*p_lV);
+  Serial.print("right value = ");
+  Serial.println(*p_rV);
+  Serial.println("****************************");
   MsTimer2::start();
 }
