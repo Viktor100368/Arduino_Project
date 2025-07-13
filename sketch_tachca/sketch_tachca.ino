@@ -6,13 +6,15 @@
 #define rightDirPin 11
 
 int midle=1500;
-int leftPwm;
-int rightPwm;
-int leftVal;
-int rightVal;
+int leftPwm;//шим левого борта
+int rightPwm;//шим правого борта
+int leftVal;//длительность сигнала используемая для вычисления левого шим
+int rightVal;//длительность сигнала используемая для вычисления правого шим
 int *p_midle;
 int *p_leftVal;
 int *p_rightVal;
+int forvardOrBack;
+int *p_forvardOrBack;
 unsigned long time = 0;
 int chanel[] ={2,3,4,5,6,7};
 int duration[count];
@@ -26,6 +28,7 @@ void setup() {
   p_leftVal = &leftVal;
   p_rightVal = &rightVal;
   p_midle = &midle;
+  P_forvardOrBack = &forvardOrBack;
   
   for(int i=0; i<count; i++){
     pinMode(chanel[i],INPUT);
@@ -107,4 +110,8 @@ void setSpeedAndDirection(int valSpeed, int valDirection, int *p_lV, int *p_rV,i
   Serial.println("****************************");
   countTimer=0;
   MsTimer2::start();
+}
+
+void stoping(int valForOrBack){
+
 }
