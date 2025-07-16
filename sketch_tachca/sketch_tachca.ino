@@ -68,23 +68,23 @@ void loop() {
     swithingDirectionMoving(duration[5], p_forvardOrBack, p_midle, p_prevValueForvardOrBack, p_togleEvent);
   }
   //торможение двигателей бортов
-  if (togleEvent == true) {
-    if(forvardOrBack == true){
-      digitalWrite(leftDirPin,LOW);
-      digitalWrite(rightDirPin,LOW);      
-    }else{
-      digitalWrite(leftDirPin,HIGH);
-      digitalWrite(rightDirPin,HIGH);      
+  // if (togleEvent == true) {
+  //   if(forvardOrBack == true){
+  //     digitalWrite(leftDirPin,LOW);
+  //     digitalWrite(rightDirPin,LOW);      
+  //   }else{
+  //     digitalWrite(leftDirPin,HIGH);
+  //     digitalWrite(rightDirPin,HIGH);      
       
-    }
-    stopCar(duration[2], p_leftVal, p_rightVal);
+  //   }
+  //  stopCar(duration[2], p_leftVal, p_rightVal);
 
-  }
+  // }
   //управление двигателями
-  // leftPwm = map(leftVal, 1000, 2000, 0, 100);
-  // rightPwm = map(rightVal, 1000, 2000, 0, 100);
-  // leftPwm = constrain(leftPwm, 0, 95);
-  // rightPwm = constrain(rightPwm, 0, 95);
+  leftPwm = map(leftVal, 1000, 2000, 0, 255);
+  rightPwm = map(rightVal, 1000, 2000, 0, 255);
+  leftPwm = constrain(leftPwm, 0, 240);
+  rightPwm = constrain(rightPwm, 0, 240);
   analogWrite(leftPwmPin,leftPwm);
   analogWrite(rightPwmPin,rightPwm);
  
@@ -95,18 +95,12 @@ void loop() {
   Serial.print("rightPwm = ");
   Serial.println(rightPwm);
 
-  // for(int i=0; i<count; i++){
-  //   Serial.print("chanel ");
-  //   Serial.print(i);
-  //   Serial.print(" = ");
-  //   Serial.println(duration[i]);
+  
+  // time = millis();
+  // unsigned long newTime = millis();
+  // while (newTime - time < 1000) {
+  //   newTime = millis();
   // }
-  // Serial.println("------------------------------");
-  time = millis();
-  unsigned long newTime = millis();
-  while (newTime - time < 1000) {
-    newTime = millis();
-  }
 }
 void timerInterupt() {
   MsTimer2::stop();
@@ -144,12 +138,7 @@ void setSpeedAndDirection(int valSpeed, int valDirection, int *p_lV, int *p_rV) 
     *p_rV = valSpeed;
   }
 
-   leftPwm = map(*p_lV, 1000, 2000, 0, 100);
-  rightPwm = map(*p_rV, 1000, 2000, 0, 100);
-  leftPwm = constrain(leftPwm, 0, 95);
-  rightPwm = constrain(rightPwm, 0, 95);
-  *p_leftPwm = leftPwm;
-  *p_rightPwm = rightPwm;
+  
   // Serial.println("******************************");
   // Serial.print("left value = ");
   // Serial.println(*p_lV);
