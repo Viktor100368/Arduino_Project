@@ -7,7 +7,10 @@
 
 int midle = 1500;
 int leftPwm;                //шим левого борта
-int rightPwm;               //шим правого борта
+int rightPwm;           //шим правого борта   
+int *p_leftPwm;
+int *p_rightPwm;
+            
 int leftVal;                //длительность сигнала используемая для вычисления левого шим
 int rightVal;               //длительность сигнала используемая для вычисления правого шим
 int *p_midle;               //указатель на midle (средний уровень длины сигнала)
@@ -32,13 +35,15 @@ int swithDirectionCounter;
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  MsTimer2::set(100, timerInterupt);
+  MsTimer2::set(20, timerInterupt);
   p_leftVal = &leftVal;
   p_rightVal = &rightVal;
   p_midle = &midle;
   p_forvardOrBack = &forvardOrBack;
   p_togleEvent = &togleEvent;
   p_prevValueForvardOrBack = &prevValueForvardOrBack;
+  p_leftPwm = &leftPwm;
+  p_rightPwm = &rightPwm;
 
   for (int i = 0; i < count; i++) {
     pinMode(chanel[i], INPUT);
@@ -76,10 +81,10 @@ void loop() {
 
   }
   //управление двигателями
-  leftPwm = map(leftVal, 1000, 2000, 0, 100);
-  rightPwm = map(rightVal, 1000, 2000, 0, 100);
-  leftPwm = constrain(leftPwm, 0, 95);
-  rightPwm = constrain(rightPwm, 0, 95);
+  // leftPwm = map(leftVal, 1000, 2000, 0, 100);
+  // rightPwm = map(rightVal, 1000, 2000, 0, 100);
+  // leftPwm = constrain(leftPwm, 0, 95);
+  // rightPwm = constrain(rightPwm, 0, 95);
   analogWrite(leftPwmPin,leftPwm);
   analogWrite(rightPwmPin,rightPwm);
  
@@ -114,6 +119,8 @@ void timerInterupt() {
 }
 void setSpeedAndDirection(int valSpeed, int valDirection, int *p_lV, int *p_rV) {
   MsTimer2::stop();
+  int leftPwm = 0;
+  int rightPwm = 0;
   if ((valDirection > 1300) && (valDirection < 1480)) {
     *p_lV = valSpeed - 150;  //изменение скорости поворота влево при малом отклонении ручки
     *p_rV = valSpeed;
@@ -136,12 +143,19 @@ void setSpeedAndDirection(int valSpeed, int valDirection, int *p_lV, int *p_rV) 
     *p_lV = valSpeed;  //иначе едем прямо
     *p_rV = valSpeed;
   }
-  Serial.println("******************************");
-  Serial.print("left value = ");
-  Serial.println(*p_lV);
-  Serial.print("right value = ");
-  Serial.println(*p_rV);
-  Serial.println("****************************");
+
+   leftPwm = map(*p_lV, 1000, 2000, 0, 100);
+  rightPwm = map(*p_rV, 1000, 2000, 0, 100);
+  leftPwm = constrain(leftPwm, 0, 95);
+  rightPwm = constrain(rightPwm, 0, 95);
+  *p_leftPwm = leftPwm;
+  *p_rightPwm = rightPwm;
+  // Serial.println("******************************");
+  // Serial.print("left value = ");
+  // Serial.println(*p_lV);
+  // Serial.print("right value = ");
+  // Serial.println(*p_rV);
+  // Serial.println("****************************");
   countTimer = 0;
   MsTimer2::start();
 }
