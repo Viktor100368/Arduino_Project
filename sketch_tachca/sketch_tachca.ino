@@ -10,21 +10,21 @@ int leftPwm;//шим левого борта
 int rightPwm;//шим правого борта
 int leftVal;//длительность сигнала используемая для вычисления левого шим
 int rightVal;//длительность сигнала используемая для вычисления правого шим
-int *p_midle;
-int *p_leftVal;
-int *p_rightVal;
-bool forvardOrBack = true;
+int *p_midle;//указатель на midle (средний уровень длины сигнала)
+int *p_leftVal; //указатель на leftVal
+int *p_rightVal;//указатель на rightVal
+bool forvardOrBack = true;//флаг true - вперед, false - назад
 bool *p_forvardOrBack;
-bool prevValueForvardOrBack = 1002;
-bool *p_prevValueForvardOrBack;
-bool togleEvent = false;
+int prevValueForvardOrBack = 1002; //предидущее значение сигнала смены направлениея движения
+int *p_prevValueForvardOrBack;
+bool togleEvent = false;// флаг преключения направления движения
 bool *p_togleEvent;
 unsigned long time = 0;
 int chanel[] ={2,3,4,5,6,7};
 
 int duration[count];
 int countTimer;
-int stopingTimer;
+int swithDirectionCounter;
 
 
 
@@ -57,8 +57,11 @@ void loop() {
   if(countTimer >= 2){
     setSpeedAndDirection(duration[2], duration[3], p_leftVal, p_rightVal);
   }
-  if(stopingTimer >=3){
-    stoping(duration[5], p_forvardOrBack, p_midle, p_prevStateForvard, p_togleEvent);
+  if(swithDirectionCounter >=3){
+    swithingDirectionMoving(duration[5], p_forvardOrBack, p_midle, p_prevValueForvardOrBack, p_togleEvent);
+  }
+  if(togleEvent){
+    stopCar(duration[2], p_leftVal, p_rightVal);
   }
   //управление двигателями
   leftPwm = map(leftVal,1000,2000,0,100);
@@ -66,7 +69,7 @@ void loop() {
   leftPwm = constrain(leftPwm,0,95);
   rightPwm = constrain(rightPwm,0,95);
   //проверка смены направления движения
-  if(togleEvnet == true){
+  if(togleEvent == true){
     stopCar();
   }
   Serial.println("==========================");
@@ -94,7 +97,7 @@ void timerInterupt(){
     duration[i]=pulseIn(chanel[i],HIGH);
   }
   countTimer++;
-  stopingTimer++;
+  swithDirectionCounter++;
   MsTimer2::start();
 }
 void setSpeedAndDirection(int valSpeed, int valDirection, int *p_lV, int *p_rV){
@@ -130,21 +133,35 @@ void setSpeedAndDirection(int valSpeed, int valDirection, int *p_lV, int *p_rV){
   countTimer=0;
   MsTimer2::start();
 }
-
-void stoping(int valForOrBack, bool *p_forvardOrBack, int *p_midle, int *p_prevValueForvardOrBack, bool *p_togleEvent)){
+//функция определения включения тумблера заднего хода
+void swithingDirectionMoving(int valForOrBack, bool *p_forvardOrBack, int *p_midle, int *p_prevValueForvardOrBack, bool *p_togleEvent){
   MsTimer2::stop();
-  if(valForOrBack < *p_midle){
-    *p_forvardOrBack = true;
-  }else if(valForOrBack > *p_midle){
-    *p_forvardOrBack = false;
+  if(valForOrBack < *p_midle){//измеряем сигнал с тумблера меньше среднего 
+    *p_forvardOrBack = true;//значит едем вперед
+  }else if(valForOrBack > *p_midle){//измеряем сигнал с тумблера больше среднего 
+    *p_forvardOrBack = false; //едем вперед
   }
-  if(valForOrBack != *p_prevValueForvardOrBack){
-    *p_togleEvent = true;
+  if(valForOrBack != *p_prevValueForvardOrBack){//текущее значение длины импульса заднего хода не равно предидущему
+    *p_togleEvent = true;   //было включение тумблера
   }else 
-    *p_togleEvent = false;
-  stopingTimer = 0;
+    *p_togleEvent = false;//иначе нет
+  swithDirectionCounter = 0;
   MsTimer2::start();
 }
-void stopCar(){
-  
+//функция торможения двигателей бортовых передач
+void stopCar(int throtleImpulse, int *p_lV, int *p_rV){
+  MsTimer2::stop();
+  unsigned long initTime = 0, secondTime = 0;
+  for(int i=throtleImpulse; i>0; i-=10){// в цикле гасим скорость двигателей с переодом 10 значений положения ручки газа
+    analogWrite(leftPwmPin,throtleImpulse);
+    analogWrite(rightPwmPin,throtleImpulse);
+    initTime = millis();
+    secondTime = millis();
+    while(secondTime - initTime <100){//задержка 100 мс
+      secondTime = millis();
+    }
+  }
+  *p_lV = 0;// сбрасываем значения шима бортов в 0 
+  *p_rV =0;
+  MsTimer2::start();
 }
